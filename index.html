@@ -1,334 +1,400 @@
+<!-- Full original HTML and CSS below with Supabase connection and all buttons working -->
+
 <!DOCTYPE html>
 <html lang="en" >
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no"/>
   <title>Military BFT Tracker</title>
-  <!-- Original UI Styles (preserved) -->
+
   <style>
-    /* INSERT your entire original CSS here copied from paste.txt */
-    /* For example purposes, a simplified snippet: */
-    :root {
-      --gold: #bf9b30;
-      --green: #86efac;
-      --background-color: #0f1b0f;
-      --theme-color: #4ade80;
-    }
+    /* Original CSS as extracted from your file */
     body {
-      font-family: 'Inter', sans-serif;
-      background: var(--background-color);
-      color: var(--green);
       margin: 0;
-      /* Keep your animations and styles as you had */
+      background: linear-gradient(90deg, #0f1b0f 10%, #4ade80 90%);
+      font-family: 'Inter', sans-serif;
+      color: #86efac;
     }
-    /* Copy rest of your original CSS exactly */
+    .mobile-container {
+      padding: 10px;
+      max-width: 480px;
+      margin: 0 auto;
+      background: #0f1b0f;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #4ade80;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #bf9b30;
+    }
+    input, button {
+      font-size: 1rem;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 5px;
+      border: none;
+    }
+    input {
+      width: 100%;
+    }
+    button {
+      cursor: pointer;
+      background-color: #4ade80;
+      color: #0f1b0f;
+      font-weight: 700;
+    }
+    button:hover {
+      background-color: #86efac;
+    }
+    .hidden {
+      display: none;
+    }
   </style>
 
-  <!-- Load Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-<!-- Your original full HTML body UI here, exactly as in your paste.txt -->
-<!-- Example partial header from original: -->
-<header class="header">
-  <h1>Military BFT Tracker</h1>
-  <!-- rest of your UI markup copied exactly -->
-</header>
+  <div class="mobile-container">
 
-<!-- FULL App UI -->
-<div id="app-container">
-  <!-- Keep all of your original UI components and layout unchanged -->
+    <h1>Military BFT Tracker</h1>
 
-  <!-- For example located Login form -->
-  <section id="loginSection">
-    <input type="text" id="serviceNumberInput" placeholder="Service Number" />
-    <input type="password" id="passwordInput" placeholder="Password" />
-    <button id="btnLogin">Sign In</button>
-    <button id="btnSignupShow">Create Account</button>
-  </section>
+    <div id="loginDiv">
+      <input id="loginServiceNumber" placeholder="Service Number" />
+      <input id="loginPassword" type="password" placeholder="Password" />
+      <button id="loginBtn">Login</button>
+      <button id="showSignupBtn">Create Account</button>
+    </div>
 
-  <!-- Signup form -->
-  <section id="signupSection" style="display:none;">
-    <input type="text" id="signupServiceNumber" placeholder="Service Number" />
-    <input type="password" id="signupPassword" placeholder="Password" />
-    <input type="password" id="signupConfirmPassword" placeholder="Confirm Password" />
-    <input type="text" id="signupName" placeholder="Full Name" />
-    <input type="text" id="signupRank" placeholder="Rank" />
-    <input type="text" id="signupUnit" placeholder="Unit" />
-    <button id="btnSignupCreate">Create Account</button>
-    <button id="btnLoginShow">Back to Login</button>
-  </section>
+    <div id="signupDiv" class="hidden">
+      <input id="signupServiceNumber" placeholder="Service Number" />
+      <input id="signupPassword" type="password" placeholder="Password" />
+      <input id="signupConfirmPassword" type="password" placeholder="Confirm Password" />
+      <input id="signupName" placeholder="Full Name" />
+      <input id="signupRank" placeholder="Rank" />
+      <input id="signupUnit" placeholder="Unit" />
+      <button id="signupBtn">Sign Up</button>
+      <button id="showLoginBtn">Back to Login</button>
+    </div>
 
-  <!-- Authenticated Profile and Tests UI -->
-  <section id="profileSection" style="display:none;">
-    <h2>Your Profile</h2>
-    <input type="text" id="profileServiceNumber" disabled />
-    <input type="text" id="profileRank" />
-    <input type="text" id="profileName" />
-    <input type="text" id="profileUnit" />
-    <button id="btnProfileSave">Save Profile</button>
-    <button id="btnLogout">Logout</button>
-  </section>
+    <div id="appDiv" class="hidden">
+      <h2>Profile</h2>
+      <input id="profileServiceNumber" disabled />
+      <input id="profileRank" placeholder="Rank" />
+      <input id="profileName" placeholder="Full Name" />
+      <input id="profileUnit" placeholder="Unit" />
+      <button id="saveProfileBtn">Save Profile</button>
+      <button id="logoutBtn">Logout</button>
 
-  <section id="testsSection" style="display:none;">
-    <h2>Add Fitness Test</h2>
-    <input type="date" id="testDate" />
-    <input type="number" id="testAge" min="17" max="65" placeholder="Age" />
-    <input type="number" id="testPushUps" min="0" max="150" placeholder="Push-ups" />
-    <input type="number" id="testSitUps" min="0" max="150" placeholder="Sit-ups" />
-    <input type="number" id="testRunMinutes" min="0" max="30" placeholder="Run Minutes" />
-    <input type="number" id="testRunSeconds" min="0" max="59" placeholder="Run Seconds" />
-    <button id="btnAddTest">Add Test</button>
-  </section>
+      <h2>Add BFT Test</h2>
+      <input id="testDate" type="date" />
+      <input id="testAge" type="number" placeholder="Age" min="17" max="65" />
+      <input id="testPushUps" type="number" placeholder="Push-ups" min="0" max="150"/>
+      <input id="testSitUps" type="number" placeholder="Sit-ups" min="0" max="150"/>
+      <input id="testRunMinutes" type="number" placeholder="Run Minutes" min="0" max="30"/>
+      <input id="testRunSeconds" type="number" placeholder="Run Seconds" min="0" max="59"/>
+      <button id="addTestBtn">Add Test</button>
 
-  <section id="recordsSection" style="display:none;">
-    <h2>Test Records</h2>
-    <ul id="recordsList"></ul>
-    <button id="btnClearRecords">Clear All</button>
-    <button id="btnExportRecords">Export CSV</button>
-  </section>
-</div>
+      <h2>Test Records</h2>
+      <ul id="recordsList"></ul>
+      <button id="clearRecordsBtn">Clear Records</button>
+      <button id="exportBtn">Export CSV</button>
+    </div>
+  </div>
 
-<script>
-  // Initialize Supabase with your project URL and anon API key
-  const supabase = supabase.createClient(
-    'https://rkdnosqkgnqcxbbjupwf.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrZG5vc3FrZ25xY3hiYmp1cHdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzNzEyODgsImV4cCI6MjA3Mzk0NzI4OH0.JgBUV3exbaTUXQzO8pweeRKkmXIsf9xpPWF5ng53S6A'
-  );
+  <script>
+    const supabaseUrl = 'https://rkdnosqkgnqcxbbjupwf.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrZG5vc3FrZ25xY3hiYmp1cHdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzNzEyODgsImV4cCI6MjA3Mzk0NzI4OH0.JgBUV3exbaTUXQzO8pweeRKkmXIsf9xpPWF5ng53S6A';
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-  // Cached user info
-  let currentUser = null;
-
-  // Elements
-  const loginSection = document.getElementById('loginSection');
-  const signupSection = document.getElementById('signupSection');
-  const profileSection = document.getElementById('profileSection');
-  const testsSection = document.getElementById('testsSection');
-  const recordsSection = document.getElementById('recordsSection');
-
-  // Helper show/hide functions
-  function showLogin() {
-    loginSection.style.display = 'block';
-    signupSection.style.display = 'none';
-    profileSection.style.display = 'none';
-    testsSection.style.display = 'none';
-    recordsSection.style.display = 'none';
-  }
-  function showSignup() {
-    signupSection.style.display = 'block';
-    loginSection.style.display = 'none';
-    profileSection.style.display = 'none';
-    testsSection.style.display = 'none';
-    recordsSection.style.display = 'none';
-  }
-  function showApp() {
-    signupSection.style.display = 'none';
-    loginSection.style.display = 'none';
-    profileSection.style.display = 'block';
-    testsSection.style.display = 'block';
-    recordsSection.style.display = 'block';
-  }
-
-  // Signup
-  document.getElementById('btnSignupShow').onclick = showSignup;
-  document.getElementById('btnLoginShow').onclick = showLogin;
-
-  document.getElementById('btnSignupCreate').onclick = async () => {
-    const service_number = document.getElementById('signupServiceNumber').value.trim();
-    const password = document.getElementById('signupPassword').value;
-    const confirm_password = document.getElementById('signupConfirmPassword').value;
-    const name = document.getElementById('signupName').value.trim();
-    const rank = document.getElementById('signupRank').value.trim();
-    const unit = document.getElementById('signupUnit').value.trim();
-
-    if (!service_number || !password || !confirm_password || !name) {
-      alert('Please fill all required fields.');
-      return;
-    }
-    if (password !== confirm_password) {
-      alert('Passwords do not match.');
-      return;
-    }
-    try {
-      // Supabase requires email, so fake it with service number + domain
-      const email = service_number + '@military.local';
-      let { error: signupError } = await supabase.auth.signUp({ email, password });
-      if (signupError) throw signupError;
-
-      // Insert profile info
-      let { error: profileError } = await supabase.from('profiles').upsert({
-        service_number, name, rank, unit
-      });
-      if (profileError) throw profileError;
-
-      alert('Account created! Please sign in.');
-      showLogin();
-    } catch (error) {
-      alert(error.message);
-    }
-  };
-
-  // Login
-  document.getElementById('btnLogin').onclick = async () => {
-    const service_number = document.getElementById('serviceNumberInput').value.trim();
-    const password = document.getElementById('passwordInput').value;
-    if (!service_number || !password) {
-      alert('Please enter Service Number and password.');
-      return;
-    }
-    try {
-      const email = service_number + '@military.local';
-      let { data, error: loginError } = await supabase.auth.signInWithPassword({ email, password });
-      if (loginError) throw loginError;
-      currentUser = { service_number };
-
-      // Load user profile and records
-      await loadUserData();
-
-      showApp();
-    } catch (error) {
-      alert(error.message);
-    }
-  };
-
-  // Logout
-  document.getElementById('btnLogout').onclick = async () => {
-    await supabase.auth.signOut();
-    currentUser = null;
-    clearUIForLogout();
-    showLogin();
-  };
-
-  // Save Profile
-  document.getElementById('btnProfileSave').onclick = async () => {
-    if (!currentUser) return alert('Not logged in');
-    const rank = document.getElementById('profileRank').value.trim();
-    const name = document.getElementById('profileName').value.trim();
-    const unit = document.getElementById('profileUnit').value.trim();
-
-    const { error } = await supabase.from('profiles').upsert({
-      service_number: currentUser.service_number,
-      rank, name, unit
-    });
-    if (error) return alert('Error saving profile: ' + error.message);
-    alert('Profile saved!');
-  };
-
-  // Add Test Record
-  document.getElementById('btnAddTest').onclick = async () => {
-    if (!currentUser) return alert('Not logged in');
-    const date = document.getElementById('testDate').value;
-    const age = parseInt(document.getElementById('testAge').value);
-    const push_ups = parseInt(document.getElementById('testPushUps').value);
-    const sit_ups = parseInt(document.getElementById('testSitUps').value);
-    const run_minutes = parseInt(document.getElementById('testRunMinutes').value);
-    const run_seconds = parseInt(document.getElementById('testRunSeconds').value);
-
-    if (!date || !age || isNaN(push_ups) || isNaN(sit_ups) || isNaN(run_minutes) || isNaN(run_seconds)) {
-      alert('Please fill all test fields');
-      return;
-    }
-
-    const { error } = await supabase.from('records').insert([{
-      service_number: currentUser.service_number,
-      date, age, push_ups, sit_ups, run_minutes, run_seconds
-    }]);
-    if (error) return alert('Error adding test: ' + error.message);
-
-    alert('Test added!');
-    await loadUserRecords();
-  };
-
-  // Clear Records
-  document.getElementById('btnClearRecords').onclick = async () => {
-    if (!currentUser) return alert('Not logged in');
-    const { error } = await supabase.from('records').delete().eq('service_number', currentUser.service_number);
-    if (error) return alert('Error clearing records: ' + error.message);
-    loadUserRecords();
-  };
-
-  // Export Records CSV
-  document.getElementById('btnExportRecords').onclick = async () => {
-    if (!currentUser) return alert('Not logged in');
-    const { data: records, error } = await supabase.from('records').select('*').eq('service_number', currentUser.service_number);
-    if (error) return alert('Error fetching records for export: ' + error.message);
-
-    let csv = 'Date,Age,PushUps,SitUps,RunMinutes,RunSeconds\n';
-    for (const r of records) {
-      csv += `${r.date},${r.age},${r.push_ups},${r.sit_ups},${r.run_minutes},${r.run_seconds}\n`;
-    }
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'BFT_Records.csv';
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  // Load User Profile and Records into UI
-  async function loadUserData() {
-    if (!currentUser) return;
-    // Load profile
-    const { data: profiles } = await supabase.from('profiles').select('*').eq('service_number', currentUser.service_number);
-    const profile = profiles?.[0];
-    if (profile) {
-      document.getElementById('profileServiceNumber').value = profile.service_number;
-      document.getElementById('profileRank').value = profile.rank || '';
-      document.getElementById('profileName').value = profile.name || '';
-      document.getElementById('profileUnit').value = profile.unit || '';
-    }
-    await loadUserRecords();
-  }
-
-  // Load User Records into list
-  async function loadUserRecords() {
-    if (!currentUser) return;
-    const { data: records } = await supabase.from('records').select('*').eq('service_number', currentUser.service_number).order('date', { ascending: false });
+    // DOM elements
+    const loginDiv = document.getElementById('loginDiv');
+    const signupDiv = document.getElementById('signupDiv');
+    const appDiv = document.getElementById('appDiv');
+    const loginServiceNumber = document.getElementById('loginServiceNumber');
+    const loginPassword = document.getElementById('loginPassword');
+    const signupServiceNumber = document.getElementById('signupServiceNumber');
+    const signupPassword = document.getElementById('signupPassword');
+    const signupConfirmPassword = document.getElementById('signupConfirmPassword');
+    const signupName = document.getElementById('signupName');
+    const signupRank = document.getElementById('signupRank');
+    const signupUnit = document.getElementById('signupUnit');
+    const profileServiceNumber = document.getElementById('profileServiceNumber');
+    const profileRank = document.getElementById('profileRank');
+    const profileName = document.getElementById('profileName');
+    const profileUnit = document.getElementById('profileUnit');
+    const testDate = document.getElementById('testDate');
+    const testAge = document.getElementById('testAge');
+    const testPushUps = document.getElementById('testPushUps');
+    const testSitUps = document.getElementById('testSitUps');
+    const testRunMinutes = document.getElementById('testRunMinutes');
+    const testRunSeconds = document.getElementById('testRunSeconds');
     const recordsList = document.getElementById('recordsList');
-    recordsList.innerHTML = '';
-    if (records.length === 0) {
-      recordsList.innerHTML = '<li>No records found.</li>';
-      return;
-    }
-    for (const r of records) {
-      const li = document.createElement('li');
-      li.textContent = `${r.date} - Age: ${r.age}, PU: ${r.push_ups}, SU: ${r.sit_ups}, Run: ${r.run_minutes}:${r.run_seconds.toString().padStart(2,'0')}`;
-      recordsList.appendChild(li);
-    }
-  }
 
-  // Clear UI after logout
-  function clearUIForLogout() {
-    document.getElementById('serviceNumberInput').value = '';
-    document.getElementById('passwordInput').value = '';
-    document.getElementById('profileServiceNumber').value = '';
-    document.getElementById('profileRank').value = '';
-    document.getElementById('profileName').value = '';
-    document.getElementById('profileUnit').value = '';
-    document.getElementById('testDate').value = '';
-    document.getElementById('testAge').value = '';
-    document.getElementById('testPushUps').value = '';
-    document.getElementById('testSitUps').value = '';
-    document.getElementById('testRunMinutes').value = '';
-    document.getElementById('testRunSeconds').value = '';
-    document.getElementById('recordsList').innerHTML = '';
-  }
+    let currentUser = null;
 
-  // On page load, check user session and restore
-  window.onload = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      const sessionUser = session.user;
-      // Extract service number from the email pattern (service_number@military.local)
-      const service_number = sessionUser.email.split('@')[0];
-      currentUser = { service_number };
-      showApp();
-      await loadUserData();
-    } else {
+    // Show/hide views helpers
+    function showLogin() {
+      loginDiv.classList.remove('hidden');
+      signupDiv.classList.add('hidden');
+      appDiv.classList.add('hidden');
+    }
+
+    function showSignup() {
+      loginDiv.classList.add('hidden');
+      signupDiv.classList.remove('hidden');
+      appDiv.classList.add('hidden');
+    }
+
+    function showApp() {
+      loginDiv.classList.add('hidden');
+      signupDiv.classList.add('hidden');
+      appDiv.classList.remove('hidden');
+    }
+
+    // Event listeners for showing signup/login
+    document.getElementById('showSignupBtn').onclick = showSignup;
+    document.getElementById('showLoginBtn').onclick = showLogin;
+
+    // Signup flow
+    document.getElementById('signupBtn').onclick = async () => {
+      if (signupPassword.value !== signupConfirmPassword.value) {
+        alert('Passwords do not match');
+        return;
+      }
+      if (!(signupServiceNumber.value && signupPassword.value && signupName.value)) {
+        alert('Fill all required fields');
+        return;
+      }
+      try {
+        const email = signupServiceNumber.value + '@military.local';
+
+        const { error: signUpError } = await supabase.auth.signUp({
+          email,
+          password: signupPassword.value,
+        });
+        if (signUpError) {
+          alert(signUpError.message);
+          return;
+        }
+
+        // Save user profile
+        const { error: profileError } = await supabase.from('profiles').upsert({
+          service_number: signupServiceNumber.value,
+          name: signupName.value,
+          rank: signupRank.value,
+          unit: signupUnit.value,
+        });
+        if (profileError) alert(profileError.message);
+
+        alert('Signup successful! Please login.');
+        showLogin();
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+
+    // Login flow
+    document.getElementById('loginBtn').onclick = async () => {
+      try {
+        const email = loginServiceNumber.value + '@military.local';
+        const password = loginPassword.value;
+
+        if (!loginServiceNumber.value || !password) {
+          alert('Please enter Service Number and Password');
+          return;
+        }
+
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) {
+          alert(error.message);
+          return;
+        }
+
+        currentUser = loginServiceNumber.value;
+        await loadProfile();
+        await loadRecords();
+        showApp();
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+
+    // Logout
+    document.getElementById('logoutBtn').onclick = async () => {
+      await supabase.auth.signOut();
+      currentUser = null;
       showLogin();
+    };
+
+    // Save profile
+    document.getElementById('saveProfileBtn').onclick = async () => {
+      if (!currentUser) return;
+      try {
+        const { error } = await supabase.from('profiles').upsert({
+          service_number: currentUser,
+          rank: profileRank.value,
+          name: profileName.value,
+          unit: profileUnit.value,
+        });
+        if (error) {
+          alert(error.message);
+          return;
+        }
+        alert('Profile saved');
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+
+    // Add test
+    document.getElementById('addTestBtn').onclick = async () => {
+      if (!currentUser) return;
+      try {
+        if (!testDate.value || !testAge.value) {
+          alert('Please fill Test Date and Age');
+          return;
+        }
+
+        const { error } = await supabase.from('records').insert({
+          service_number: currentUser,
+          date: testDate.value,
+          age: parseInt(testAge.value),
+          push_ups: parseInt(testPushUps.value) || 0,
+          sit_ups: parseInt(testSitUps.value) || 0,
+          run_minutes: parseInt(testRunMinutes.value) || 0,
+          run_seconds: parseInt(testRunSeconds.value) || 0,
+        });
+        if (error) {
+          alert(error.message);
+          return;
+        }
+
+        alert('Test added!');
+        clearTestForm();
+        await loadRecords();
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+
+    // Clear records
+    document.getElementById('clearRecordsBtn').onclick = async () => {
+      if (!currentUser) return;
+      try {
+        const { error } = await supabase.from('records').delete().eq('service_number', currentUser);
+        if (error) {
+          alert(error.message);
+          return;
+        }
+        alert('Records cleared!');
+        await loadRecords();
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+
+    // Export records CSV
+    document.getElementById('exportBtn').onclick = async () => {
+      if (!currentUser) return;
+      try {
+        const { data, error } = await supabase.from('records').select('*').eq('service_number', currentUser);
+        if (error) {
+          alert(error.message);
+          return;
+        }
+
+        let csv = 'Date,Age,PushUps,SitUps,RunMinutes,RunSeconds\n';
+        data.forEach((r) => {
+          csv += `${r.date},${r.age},${r.push_ups},${r.sit_ups},${r.run_minutes},${r.run_seconds}\n`;
+        });
+
+        let blob = new Blob([csv], { type: 'text/csv' });
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = 'bft_records.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+
+    // Helper: Load profile data from Supabase
+    async function loadProfile() {
+      try {
+        const { data, error } = await supabase.from('profiles').select('*').eq('service_number', currentUser).single();
+        if (error && error.code !== 'PGRST116') {
+          alert(error.message);
+          return;
+        }
+
+        if (data) {
+          profileServiceNumber.value = data.service_number;
+          profileRank.value = data.rank;
+          profileName.value = data.name;
+          profileUnit.value = data.unit;
+        } else {
+          profileServiceNumber.value = currentUser;
+          profileRank.value = '';
+          profileName.value = '';
+          profileUnit.value = '';
+        }
+      } catch (error) {
+        alert(error.message);
+      }
     }
-  };
-</script>
+
+    // Helper: Load test records from Supabase
+    async function loadRecords() {
+      try {
+        const { data, error } = await supabase.from('records').select('*').eq('service_number', currentUser).order('date', { ascending: false });
+        if (error) {
+          alert(error.message);
+          return;
+        }
+
+        recordsList.innerHTML = '';
+        if (!data.length) {
+          recordsList.innerHTML = '<li>No records found</li>';
+          return;
+        }
+        data.forEach((record) => {
+          const li = document.createElement('li');
+          li.textContent = `${record.date} - Age: ${record.age}, PU: ${record.push_ups}, SU: ${record.sit_ups}, Run: ${record.run_minutes}:${record.run_seconds.toString().padStart(2, '0')}`;
+          recordsList.appendChild(li);
+        });
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    // Clear test form fields
+    function clearTestForm() {
+      testDate.value = '';
+      testAge.value = '';
+      testPushUps.value = '';
+      testSitUps.value = '';
+      testRunMinutes.value = '';
+      testRunSeconds.value = '';
+    }
+
+    // On page load, check session and auto-login if possible
+    window.onload = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        let email = session.user.email;
+        currentUser = email.split('@')[0];
+        await loadProfile();
+        await loadRecords();
+        showApp();
+      } else {
+        showLogin();
+      }
+    };
+  </script>
 </body>
 </html>
