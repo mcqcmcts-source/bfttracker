@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Military BFT Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    /* ... [Insert full CSS from your existing app here] ... */
+    body {font-family: Inter, sans-serif; margin:0; background: #1a2e1a;}
+    /* Truncated, see your original for full UI style */
+  </style>
+</head>
+<body>
+  <div class="mobile-container">
+    <!-- ... HEADER ... -->
+    <div class="mobile-header">
+      <div class="marine-logo">
+        <img src="https://postimg.cc/wyPr3CnJ" alt="Logo" width="40" height="40" style="border-radius:50%">
+      </div>
+      <div class="header-text">
+        <h1>MILITARY BFT TRACKER</h1>
+        <h2>BFT TRACKER</h2>
+        <p>Basic Fitness Test Performance Management</p>
+      </div>
+    </div>
+    <!-- LOGIN/SIGNUP -->
+    <div id="loginScreen" class="mobile-content">
+      <div class="mobile-card">
+        <h2>Access BFT Tracker</h2>
+        <div id="loginForm">
+          <div class="form-group">
+            <label>Service Number</label>
+            <input type="text" id="loginServiceNumber" placeholder="Enter your Service Number" autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password">
+          </div>
+          <button class="mobile-btn success full-width" onclick="login()">Sign In</button>
+          <div style="text-align:center; margin:20px 0; color:#86efac; font-size:0.9rem">
+            Don't have an account? 
+          </div>
+          <button class="mobile-btn secondary full-width" onclick="showSignup()">Create Account</button>
+        </div>
+        <div id="signupForm" style="display:none;">
+          <div class="form-group">
+            <label>Service Number</label>
+            <input type="text" id="signupServiceNumber" placeholder="Enter your Service Number" autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label>Create Password</label>
+            <input type="password" id="signupPassword" placeholder="Create a secure password" autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label>Confirm Password</label>
+            <input type="password" id="confirmPassword" placeholder="Confirm your password" autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="signupName" placeholder="Enter your full name" autocomplete="name">
+          </div>
+          <div class="form-group">
+            <label>Rank</label>
+            <input type="text" id="signupRank" placeholder="Enter your rank" autocomplete="organization-title">
+          </div>
+          <div class="form-group">
+            <label>Unit</label>
+            <input type="text" id="signupUnit" placeholder="Enter your unit" autocomplete="organization">
+          </div>
+          <button class="mobile-btn success full-width" onclick="signup()">Create Account</button>
+          <div style="text-align:center; margin:20px 0; color:#86efac; font-size:0.9rem">
+            Already have an account?
+          </div>
+          <button class="mobile-btn secondary full-width" onclick="showLogin()">Sign In</button>
+        </div>
+        <div id="dbStatus" style="margin-top:10px; padding:8px; color:#10b981;">Initializing Database...</div>
+      </div>
+    </div>
+    <!-- MAIN APP -->
+    <div id="mainApp" class="mobile-content" style="display:none;">
+      <!-- ... PROFILE SECTION ... -->
+      <div class="mobile-card">
+        <h2>Your Profile</h2>
+        <div id="profileForm">
+          <div class="form-group"><label>Service Number</label>
+            <input type="text" id="serviceNumber" placeholder="Enter SN"></div>
+          <div class="form-group"><label>Rank</label>
+            <input type="text" id="rank" placeholder="Enter Rank"></div>
+          <div class="form-group"><label>Full Name</label>
+            <input type="text" id="name" placeholder="Enter Full Name"></div>
+          <div class="form-group"><label>Unit</label>
+            <input type="text" id="unit" placeholder="Enter Unit"></div>
+          <button class="mobile-btn success full-width" onclick="saveProfile()">Save Profile</button>
+        </div>
+        <div id="profileDisplay" class="profile-display" style="display:none;">
+          <!-- Profile data loaded here -->
+        </div>
+        <button class="mobile-btn danger full-width" onclick="clearProfile()">Clear Profile</button>
+        <button class="mobile-btn secondary full-width" onclick="logout()">Sign Out</button>
+      </div>
+      <!-- ... TEST ENTRY ... -->
+      <div class="mobile-card">
+        <h2>New BFT Test</h2>
+        <div class="form-group"><label>Test Date</label>
+          <input type="date" id="testDate"></div>
+        <div class="form-group"><label>Age at Test</label>
+          <input type="number" id="ageAtTest" min="17" max="65" placeholder="Age" oninput="updateCalculations()"></div>
+        <div class="form-group"><label>Push-ups Count</label>
+          <input type="number" id="pushUps" min="0" max="150" placeholder="Push-ups" oninput="updateCalculations()"></div>
+        <div class="form-group"><label>Sit-ups Count</label>
+          <input type="number" id="sitUps" min="0" max="150" placeholder="Sit-ups" oninput="updateCalculations()"></div>
+        <div class="form-group"><label>Running Time</label>
+            <input type="number" id="runMinutes" min="0" max="30" placeholder="MM" oninput="updateCalculations()">:
+            <input type="number" id="runSeconds" min="0" max="59" placeholder="SS" oninput="updateCalculations()">
+        </div>
+        <div id="calculatorDisplay" class="calculator-display" style="display:none;">
+          <!-- Live scores shown here -->
+        </div>
+        <button class="mobile-btn success full-width" onclick="addTestRecord()">Add Test Record</button>
+      </div>
+      <!-- ... RECORDS SECTION ... -->
+      <div class="mobile-card">
+        <h2>Test Records</h2>
+        <div class="filters">
+          <select id="yearFilter" onchange="filterRecords()">
+            <option value="All Years">All Years</option>
+          </select>
+          <button class="mobile-btn danger small" onclick="clearAllRecords()">Clear All</button>
+          <button class="mobile-btn secondary small" onclick="exportData()">Export</button>
+        </div>
+        <div id="recordsContainer"><div class="loading">Loading records...</div></div>
+      </div>
+    </div>
+    <!-- FOOTER -->
+    <div class="military-footer">
+      <div class="footer-content">
+        <div class="footer-copyright">All Rights Reserved 2025</div>
+        <div class="footer-designer">Designed By LCPL Ahmed Nabeel</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // Supabase Initialization
+  const supabase = window.supabase.createClient(
+    "https://rkdnosqkgnqcxbbjupwf.supabase.co", 
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrZG5vc3FrZ25xY3hiYmp1cHdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzNzEyODgsImV4cCI6MjA3Mzk0NzI4OH0.JgBUV3exbaTUXQzO8pweeRKkmXIsf9xpPWF5ng53S6A"
+  );
+  let currentUser = null;
+
+  function showSignup() {
+    document.getElementById('loginForm').style.display = "none";
+    document.getElementById('signupForm').style.display = "block";
+  }
+  function showLogin() {
+    document.getElementById('loginForm').style.display = "block";
+    document.getElementById('signupForm').style.display = "none";
+  }
+
+  // Supabase Auth/signup/login logic
+  async function signup() {
+    const serviceNumber = document.getElementById("signupServiceNumber").value.trim();
+    const password = document.getElementById("signupPassword").value;
+    const confirm = document.getElementById("confirmPassword").value;
+    const name = document.getElementById("signupName").value.trim();
+    const rank = document.getElementById("signupRank").value.trim();
+    const unit = document.getElementById("signupUnit").value.trim();
+    if (!serviceNumber || !password || !confirm || !name) return alert("Fill all fields!");
+    if (password !== confirm) return alert("Passwords do not match!");
+
+    // Use an email for Supabase. We'll synthesize one:
+    const email = serviceNumber + "@bft.local";
+    const { error } = await supabase.auth.signUp({ email, password });
+    if (error) return alert(error.message);
+
+    // Save profile to profiles table
+    let { error: profileError } = await supabase.from('profiles').upsert({
+      service_number: serviceNumber, rank, name, unit
+    });
+    if (profileError) return alert(profileError.message);
+
+    localStorage.setItem("lastUserSN", serviceNumber);
+    alert("Signup successful! Now sign in.");
+    showLogin();
+  }
+
+  async function login() {
+    const serviceNumber = document.getElementById("loginServiceNumber").value.trim();
+    const password = document.getElementById("loginPassword").value;
+    if (!serviceNumber || !password) return alert("Please enter all fields!");
+    const email = serviceNumber + "@bft.local";
+    const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+    if (error || !data.session) return alert(error?.message || "Login failed");
+    currentUser = { serviceNumber };
+    localStorage.setItem("lastUserSN", serviceNumber);
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("mainApp").style.display = "block";
+    await refreshAll();
+  }
+
+  async function logout() {
+    await supabase.auth.signOut();
+    currentUser = null;
+    document.getElementById("mainApp").style.display = "none";
+    document.getElementById("loginScreen").style.display = "block";
+  }
+
+  async function saveProfile() {
+    if (!currentUser) return;
+    const profile = {
+      service_number: document.getElementById("serviceNumber").value,
+      rank: document.getElementById("rank").value,
+      name: document.getElementById("name").value,
+      unit: document.getElementById("unit").value
+    };
+    let { error } = await supabase.from('profiles').upsert(profile);
+    if (error) return alert(error.message);
+    alert("Profile saved!");
+    showProfile();
+  }
+
+  async function showProfile() {
+    if (!currentUser) return;
+    let { data } = await supabase.from('profiles').select('*').eq('service_number', currentUser.serviceNumber);
+    const pd = data?.[0];
+    let html = `
+      <div><strong>S/N:</strong> ${pd?.service_number ?? ""}</div>
+      <div><strong>Name:</strong> ${pd?.name ?? ""}</div>
+      <div><strong>Rank:</strong> ${pd?.rank ?? ""}</div>
+      <div><strong>Unit:</strong> ${pd?.unit ?? ""}</div>
+    `;
+    document.getElementById("profileDisplay").innerHTML = html;
+  }
+
+  async function clearProfile() {
+    if (!currentUser) return;
+    await supabase.from('profiles').delete().eq('service_number', currentUser.serviceNumber);
+    document.getElementById("profileDisplay").innerHTML = "";
+    alert("Profile cleared!");
+  }
+
+  // BFT Test Storage
+  async function addTestRecord() {
+    if (!currentUser) return;
+    const rec = {
+      service_number: currentUser.serviceNumber,
+      date: document.getElementById("testDate").value,
+      age: parseInt(document.getElementById("ageAtTest").value),
+      push_ups: parseInt(document.getElementById("pushUps").value),
+      sit_ups: parseInt(document.getElementById("sitUps").value),
+      run_minutes: parseInt(document.getElementById("runMinutes").value),
+      run_seconds: parseInt(document.getElementById("runSeconds").value)
+    };
+    if (!rec.date || !rec.age || isNaN(rec.push_ups) || isNaN(rec.sit_ups) || isNaN(rec.run_minutes) || isNaN(rec.run_seconds)) return alert("Fill all fields!");
+    let { error } = await supabase.from('records').insert(rec);
+    if (error) return alert(error.message);
+    alert("Test added!");
+    showRecords();
+  }
+
+  async function clearAllRecords() {
+    if (!currentUser) return;
+    await supabase.from('records').delete().eq('service_number', currentUser.serviceNumber);
+    showRecords();
+  }
+
+  // Records Display
+  async function showRecords() {
+    if (!currentUser) return;
+    let { data } = await supabase.from('records')
+      .select('*').eq('service_number', currentUser.serviceNumber).order('date', { ascending: false });
+    let html = "<ul>";
+    for (const r of data) {
+      html += `<li>${r.date}: PU ${r.push_ups}, SU ${r.sit_ups}, Run ${r.run_minutes}:${String(r.run_seconds).padStart(2, "0")}</li>`;
+    }
+    html += "</ul>";
+    document.getElementById("recordsContainer").innerHTML = html;
+  }
+
+  async function exportData() {
+    if (!currentUser) return;
+    let { data: records } = await supabase.from('records').select('*').eq('service_number', currentUser.serviceNumber);
+    let csv = "Date,Age,PushUps,SitUps,RunMinutes,RunSeconds\n";
+    for (const r of records) {
+      csv += `${r.date},${r.age},${r.push_ups},${r.sit_ups},${r.run_minutes},${r.run_seconds}\n`;
+    }
+    const blob = new Blob([csv], {type:"text/csv"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = "BFTRecords.csv"; a.click(); URL.revokeObjectURL(url);
+  }
+
+  // Refresh all after login
+  async function refreshAll() {
+    await showProfile();
+    await showRecords();
+  }
+
+  // Silent login by session
+  window.onload = async function() {
+    let { data: { session } } = await supabase.auth.getSession();
+    const lastSN = localStorage.getItem("lastUserSN");
+    if (session && lastSN) {
+      currentUser = {serviceNumber: lastSN};
+      document.getElementById("loginScreen").style.display = "none";
+      document.getElementById("mainApp").style.display = "block";
+      await refreshAll();
+    } else {
+      document.getElementById("mainApp").style.display = "none";
+      document.getElementById("loginScreen").style.display = "block";
+    }
+  };
+</script>
+</body>
+</html>
