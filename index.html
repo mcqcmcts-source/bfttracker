@@ -1,316 +1,930 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta charset="utf-8" />
   <title>Military BFT Tracker</title>
-  <!-- Original styles and UI preserved -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
   <style>
-    /* ... Paste your original full CSS from your file here ... */
-    /* For brevity, this is a placeholder */
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; }
     body {
-      background: linear-gradient(135deg, #1a2e1a 0%, #0f1b0f 50%, #1a2e1a 100%);
-      font-family: 'Inter', sans-serif;
-      color: #86efac;
       margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      color: #e2e8f0;
+      background: linear-gradient(135deg, #1a2e1a 0%, #0f1b0f 50%, #1a2e1a 100%);
     }
-    /* Add all your original styles here */
+
+    body::before, body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -1; }
+    body::before {
+      background:
+        radial-gradient(circle at 20% 30%, rgba(76, 175, 80, 0.25) 0%, transparent 60%),
+        radial-gradient(circle at 80% 70%, rgba(34, 197, 94, 0.2) 0%, transparent 60%),
+        radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.08) 0%, transparent 70%);
+      animation: bgPulse 4s ease-in-out infinite alternate;
+    }
+    @keyframes bgPulse { from { opacity: .6; transform: scale(1) } to { opacity: .9; transform: scale(1.02) } }
+    body::after {
+      background:
+        linear-gradient(45deg, transparent 48%, rgba(76,175,80,.03) 49%, rgba(76,175,80,.03) 51%, transparent 52%),
+        linear-gradient(-45deg, transparent 48%, rgba(255,215,0,.02) 49%, rgba(255,215,0,.02) 51%, transparent 52%);
+      background-size: 60px 60px;
+      animation: gridSlide 8s linear infinite;
+    }
+    @keyframes gridSlide { from { transform: translate(0,0) } to { transform: translate(60px,60px) } }
+
+    .mobile-container { min-height: 100vh; display: flex; flex-direction: column; }
+    .mobile-content { flex: 1; padding: 15px; padding-bottom: 120px; }
+
+    .mobile-header {
+      position: sticky; top: 0; z-index: 5;
+      display: flex; align-items: center; justify-content: center; text-align: center; gap: 18px;
+      padding: 26px 20px 22px;
+      background:
+        linear-gradient(135deg, rgba(15,23,42,.95) 0%, rgba(30,41,59,.95) 50%, rgba(15,23,42,.95) 100%),
+        linear-gradient(90deg, rgba(255,215,0,.1) 0%, transparent 20%, transparent 80%, rgba(255,215,0,.1) 100%);
+      border-bottom: 4px solid #FFD700; border-top: 2px solid rgba(76,175,80,.6);
+      box-shadow: 0 12px 40px rgba(0,0,0,.4), 0 4px 12px rgba(255,215,0,.3);
+      overflow: hidden;
+    }
+    .mobile-header::before {
+      content:''; position:absolute; inset:0; left:-100%;
+      background: linear-gradient(90deg, transparent, rgba(255,215,0,.1), transparent);
+      animation: shine 3s ease-in-out infinite;
+    }
+    @keyframes shine { 0%{left:-100%}50%{left:100%}100%{left:100%} }
+    .mobile-header h1 {
+      font-size: 1.8rem; font-weight: 900; color: #fff; margin: 0 0 6px; letter-spacing: 1px; position: relative;
+      text-shadow: 0 0 10px rgba(76,175,80,.4), 0 3px 6px rgba(0,0,0,.6);
+    }
+
+    /* Gold shimmering school title */
+    .gold-title {
+      background: linear-gradient(90deg, #b8890b, #ffd700, #b8890b);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: shimmer 3s linear infinite;
+      text-shadow: 0 0 14px rgba(255,215,0,.35);
+      letter-spacing: 1.6px;
+      text-transform: uppercase;
+      font-weight: 900;
+      font-size: .95rem;
+      margin: 0 0 6px;
+    }
+    @keyframes shimmer { to { background-position: 200% center; } }
+
+    /* Emblem logo with soft glow */
+    .header-logo-wrap { position: relative; width: 86px; height: 86px; margin: 0 auto 8px; }
+    .header-logo-wrap::before { content:''; position:absolute; inset:-12px; border-radius:50%; background: radial-gradient(circle, rgba(255,215,0,0.35) 0%, rgba(255,215,0,0.18) 40%, rgba(16,185,129,0.18) 65%, transparent 75%); filter: blur(8px); animation: pulseGlow 3s ease-in-out infinite; }
+    .school-logo { width:100%; height:100%; object-fit: contain; border-radius: 12px; box-shadow: 0 0 24px rgba(255,215,0,.45), 0 0 60px rgba(16,185,129,.25); }
+    @keyframes pulseGlow { 0% { transform: scale(0.98); opacity: .85 } 50% { transform: scale(1.02); opacity: 1 } 100% { transform: scale(0.98); opacity: .85 } }
+
+    .mobile-card {
+      background: linear-gradient(135deg, rgba(15,23,42,.45) 0%, rgba(30,41,59,.45) 100%);
+      border: 2px solid rgba(76,175,80,.3); border-radius: 20px; padding: 22px; margin-bottom: 18px;
+      box-shadow: 0 10px 40px rgba(0,0,0,.2), 0 4px 12px rgba(76,175,80,.15);
+    }
+    .mobile-card h2 { margin: 0 0 16px; color: #4ade80; font-size: 1.2rem; }
+
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display:block; margin-bottom:8px; color:#e2e8f0; font-weight:700; font-size:.8rem; text-transform: uppercase; }
+    .form-group input {
+      width: 100%; padding: 14px 16px; border-radius: 14px; border: 2px solid rgba(76,175,80,.4);
+      background: linear-gradient(135deg, rgba(15,23,42,.3) 0%, rgba(30,41,59,.3) 100%);
+      color: #f1f5f9; font-weight: 600;
+    }
+    .form-help { color: #86efac; font-size: .8rem; margin-top: 4px; }
+
+    .btn {
+      display: inline-flex; gap: 8px; align-items: center; justify-content: center;
+      padding: 12px 16px; border: 0; border-radius: 14px; cursor: pointer; font-weight: 800; color: #fff;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      box-shadow: 0 6px 20px rgba(59,130,246,.3);
+    }
+    .btn.success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+    .btn.danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+    .btn.secondary { background: linear-gradient(135deg, rgba(76,175,80,.15) 0%, rgba(76,175,80,.25) 100%); color: #4ade80; border: 2px solid rgba(76,175,80,.4); }
+    .btn.small { padding: 8px 12px; font-weight: 700; }
+
+    /* Profile - refined, professional look */
+    .profile-photo-section {
+      text-align: center; margin-bottom: 18px; padding: 18px;
+      border: 2px solid rgba(76,175,80,.35); border-radius: 18px;
+      background: linear-gradient(135deg, rgba(15,23,42,.4) 0%, rgba(30,41,59,.4) 100%);
+    }
+    .photo-preview img {
+      width: 100px; height: 100px; border-radius: 50%; object-fit: cover;
+      border: 4px solid #4ade80; box-shadow: 0 8px 24px rgba(16,185,129,.25);
+    }
+    .photo-placeholder {
+      width:100px; height:100px; border-radius:50%; margin:0 auto 12px; display:flex; align-items:center; justify-content:center;
+      border: 3px dashed rgba(76,175,80,.45); color:#86efac; font-size: 2rem; background: rgba(15,23,42,.35);
+    }
+    .profile-header {
+      display: flex; align-items: center; gap: 16px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px dashed rgba(148,163,184,.25);
+    }
+    .profile-header .badge {
+      padding: 6px 10px; border-radius: 999px; font-weight: 800; font-size: .7rem;
+      background: linear-gradient(135deg, rgba(34,197,94,.18), rgba(16,185,129,.18)); color:#86efac; border:1px solid rgba(34,197,94,.35);
+    }
+    .grid-2 { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    @media (max-width:640px){ .grid-2 { grid-template-columns: 1fr; } }
+    .field { display:flex; flex-direction:column; }
+    .field label { margin-bottom:8px; color:#e2e8f0; font-weight:700; font-size:.78rem; letter-spacing:.2px; text-transform: uppercase; }
+    .field input {
+      width: 100%; padding: 14px 16px; border-radius: 14px; border: 2px solid rgba(76,175,80,.4);
+      background: linear-gradient(135deg, rgba(15,23,42,.3) 0%, rgba(30,41,59,.3) 100%);
+      color: #f1f5f9; font-weight: 600; outline: none;
+    }
+    .actions { display:flex; gap:8px; flex-wrap: wrap; justify-content:flex-end; margin-top: 10px; }
+    .info-rows { display:grid; gap:8px; margin-top:8px; }
+    .info-row { display:flex; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:12px; background: rgba(2,6,23,.35); border:1px solid rgba(148,163,184,.15); }
+    .info-row strong { color:#c7d2fe; }
+
+    .calculator-display { display:none; margin: 12px 0; padding: 14px; border: 2px solid rgba(76,175,80,.4); border-radius: 16px; }
+    .score-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .score-item { padding: 12px; border-radius: 12px; text-align: center; font-weight: 700; color:#d1fae5; border:2px solid rgba(16,185,129,.3); background: rgba(16,185,129,.15); }
+    .score-item.fail { background: rgba(239,68,68,.2); border-color: rgba(239,68,68,.4); color:#fecaca; }
+    .score-item.merit { background: rgba(245,158,11,.2); border-color: rgba(245,158,11,.4); color:#fef3c7; }
+    .score-item.no-entry { background: rgba(100,116,139,.15); border-color: rgba(100,116,139,.3); color:#cbd5e1; }
+
+    .test-record { position:relative; padding: 14px; border-radius: 16px; border: 2px solid rgba(76,175,80,.4); margin-bottom: 12px; background: rgba(15,23,42,.35); }
+    .status-badge { position:absolute; top:10px; right:10px; font-size:.7rem; font-weight: 900; padding: 6px 10px; border-radius: 16px; border: 2px solid rgba(255,255,255,.12); color:#fff; }
+    .status-badge.pass { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+    .status-badge.fail { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+    .status-badge.merit { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+    .test-details { display:grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
+    .test-detail { padding: 8px; border-radius: 6px; background: rgba(0,0,0,.3); border-left: 3px solid #10b981; color: #86efac; font-size: .78rem; }
+    .test-detail.fail-event { border-left-color:#ef4444; background: rgba(239,68,68,.2); color:#fecaca; }
+
+    .year-summary { position:relative; text-align:center; padding: 12px; border-radius: 12px; border: 1px solid rgba(76,175,80,.3); margin-bottom: 12px; background: rgba(15,23,15,.95); }
+    .summary-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+    .stat-item { padding: 8px; border-radius: 6px; background: rgba(0,0,0,.3); border: 1px solid rgba(76,175,80,.3); color:#86efac; font-size:.75rem; font-weight:700; }
+
+    .filters { display:flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+    select { padding: 12px; border-radius: 12px; border: 2px solid rgba(76,175,80,.4); background: rgba(15,23,42,.3); color:#f1f5f9; }
+
+    .empty-state, .loading { text-align:center; padding: 22px 10px; color: #86efac; }
+    .toast {
+      position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+      background: #3b82f6; color: #fff; padding: 10px 14px; border-radius: 10px; font-weight: 800; z-index: 1000;
+      box-shadow: 0 6px 16px rgba(0,0,0,.35);
+    }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <div class="mobile-container">
-    <!-- Insert your full HTML markup from your pasted file here preserving original structure -->
-    <!-- Example partial for login UI -->
-    <div id="loginScreen" class="mobile-content">
-      <div class="mobile-card">
-        <h2>Access BFT Tracker</h2>
-        <label>Service Number</label>
-        <input type="text" id="loginServiceNumber" placeholder="Enter your Service Number"/>
-        <label>Password</label>
-        <input type="password" id="loginPassword" placeholder="Enter your password"/>
-        <button onclick="login()">Sign In</button>
-        <button onclick="showSignup()">Create Account</button>
+    <!-- Header -->
+    <div class="mobile-header">
+      <div class="header-text" style="text-align:center;">
+        <div class="header-logo-wrap">
+          <img class="school-logo" src="https://i.postimg.cc/G2CGddQb/MCTS-Logo.png" alt="MCTS Emblem" onerror="this.src=''; this.alt='Image failed to load'; this.style.display='none';">
+        </div>
+        <div class="gold-title">MARINE CORPS TRAINING SCHOOL</div>
+        <h1>BFT TRACKER</h1>
       </div>
     </div>
 
-    <div id="signupScreen" class="mobile-content" style="display:none;">
+    <!-- Main App UI -->
+    <div id="app" class="mobile-content">
+      <!-- Profile -->
       <div class="mobile-card">
-        <h2>Create Account</h2>
-        <label>Service Number</label>
-        <input type="text" id="signupServiceNumber" placeholder="Enter your Service Number"/>
-        <label>Password</label>
-        <input type="password" id="signupPassword" placeholder="Create a password"/>
-        <label>Confirm Password</label>
-        <input type="password" id="confirmPassword" placeholder="Confirm password"/>
-        <label>Full Name</label>
-        <input type="text" id="signupName" placeholder="Enter your full name"/>
-        <label>Rank</label>
-        <input type="text" id="signupRank" placeholder="Enter your rank"/>
-        <label>Unit</label>
-        <input type="text" id="signupUnit" placeholder="Enter your unit"/>
-        <button onclick="signup()">Create Account</button>
-        <button onclick="showLogin()">Back to Login</button>
-      </div>
-    </div>
+        <div class="profile-header">
+          <h2 style="margin:0;">👤 Your Profile</h2>
+          <span class="badge">Local Only</span>
+        </div>
+        <div class="profile-photo-section">
+          <div id="photoPreview" class="photo-preview" style="display:none;">
+            <img id="previewImage" alt="Profile">
+            <div class="actions" style="justify-content:center;margin-top:10px;">
+              <button class="btn small secondary" onclick="removePhoto()">Remove Photo</button>
+            </div>
+          </div>
+          <div id="noPhotoPlaceholder" class="photo-placeholder">👤</div>
+          <label for="profilePhoto" class="btn small secondary">📷 Upload Photo</label>
+          <input id="profilePhoto" type="file" accept="image/*" onchange="handlePhotoUpload()" style="display:none;">
+        </div>
 
-    <div id="mainApp" class="mobile-content" style="display:none;">
-      <div class="mobile-card">
-        <h2>Your Profile</h2>
-        <input type="text" id="serviceNumber" disabled />
-        <input type="text" id="rank" placeholder="Rank"/>
-        <input type="text" id="name" placeholder="Full Name"/>
-        <input type="text" id="unit" placeholder="Unit"/>
-        <button onclick="saveProfile()">Save Profile</button>
-        <button onclick="logout()">Logout</button>
+        <div id="profileForm" class="grid-2">
+          <div class="field">
+            <label>Service Number</label>
+            <input id="serviceNumber" type="text" placeholder="Enter SN">
+            <div class="form-help">Used to group and load your records</div>
+          </div>
+          <div class="field">
+            <label>Rank</label>
+            <input id="rank" type="text" placeholder="Enter Rank">
+          </div>
+          <div class="field">
+            <label>Full Name</label>
+            <input id="name" type="text" placeholder="Enter Full Name">
+          </div>
+          <div class="field">
+            <label>Unit</label>
+            <input id="unit" type="text" placeholder="Enter Unit">
+          </div>
+          <div class="actions" style="grid-column:1/-1;">
+            <button class="btn secondary" onclick="editProfile()">Continue Editing</button>
+            <button class="btn success" onclick="saveProfile()">💾 Save Profile</button>
+          </div>
+        </div>
+
+        <div id="profileDisplay" style="display:none;">
+          <div class="info-rows" id="profileDetails"></div>
+          <div id="profilePhotoDisplay" style="display:none; margin-top:10px; text-align:center;">
+            <img id="displayPhoto" alt="Profile" style="width:88px;height:88px;border-radius:12px;border:3px solid #4ade80;box-shadow:0 8px 22px rgba(16,185,129,.25);">
+          </div>
+          <div class="actions">
+            <button class="btn secondary" onclick="editProfile()">✏️ Edit</button>
+            <button class="btn danger" onclick="clearProfile()">🗑️ Clear Profile</button>
+          </div>
+        </div>
       </div>
 
+      <!-- New Test -->
       <div class="mobile-card">
-        <h2>New BFT Test</h2>
-        <label>Test Date</label>
-        <input type="date" id="testDate"/>
-        <label>Age</label>
-        <input type="number" id="ageAtTest" min="17" max="65" placeholder="Age"/>
-        <label>Push-ups</label>
-        <input type="number" id="pushUps" min="0" max="150" placeholder="Push-ups"/>
-        <label>Sit-ups</label>
-        <input type="number" id="sitUps" min="0" max="150" placeholder="Sit-ups"/>
-        <label>Run Time</label>
-        <input type="number" id="runMinutes" min="0" max="30" placeholder="Minutes"/>
-        <input type="number" id="runSeconds" min="0" max="59" placeholder="Seconds"/>
-        <button onclick="addTestRecord()">Add Test</button>
+        <h2>📊 New BFT Test</h2>
+        <div class="form-group">
+          <label>Test Date</label>
+          <input id="testDate" type="date">
+        </div>
+        <div class="form-group">
+          <label>Age at Test</label>
+          <input id="ageAtTest" type="number" min="17" max="65" oninput="updateCalculations()" placeholder="Enter age">
+        </div>
+        <div class="form-group">
+          <label>Push-ups</label>
+          <input id="pushUps" type="number" min="0" max="150" oninput="updateCalculations()" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label>Sit-ups</label>
+          <input id="sitUps" type="number" min="0" max="150" oninput="updateCalculations()" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label>Run Time</label>
+          <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;">
+            <input id="runMinutes" type="number" min="0" max="30" oninput="updateCalculations()" placeholder="MM" style="text-align:center;">
+            <div style="font-weight:900;color:#4ade80;">:</div>
+            <input id="runSeconds" type="number" min="0" max="59" oninput="updateCalculations()" placeholder="SS" style="text-align:center;">
+          </div>
+        </div>
+
+        <div id="calculatorDisplay" class="calculator-display">
+          <h3 style="margin:0 0 8px;color:#4ade80;">📋 Live Score</h3>
+          <div id="currentScores" class="score-grid"></div>
+          <div id="requirements" style="margin-top:8px;font-size:.85rem;color:#d1fae5;"></div>
+        </div>
+
+        <button class="btn success" onclick="addTestRecord()">✅ Add Test Record</button>
       </div>
 
+      <!-- Records -->
       <div class="mobile-card">
-        <h2>Test Records</h2>
-        <div id="recordsContainer">Loading...</div>
-        <button onclick="clearAllRecords()">Clear All</button>
-        <button onclick="exportData()">Export</button>
+        <h2>📈 Test Records</h2>
+        <div class="filters">
+          <select id="yearFilter" onchange="filterRecords()">
+            <option value="">All Years</option>
+          </select>
+          <button class="btn small danger" onclick="clearAllRecords()">Clear All</button>
+          <button class="btn small secondary" onclick="exportData()">📤 Export</button>
+        </div>
+        <div id="recordsContainer">
+          <div class="loading">No records yet</div>
+        </div>
+      </div>
+
+      <!-- Cloud Sync (hidden) -->
+      <div class="mobile-card" id="cloudCard" style="display:none;">
+        <h2>☁️ Cloud Sync</h2>
+        <div class="form-group">
+          <label>Supabase Project URL</label>
+          <input id="sbUrl" type="text" placeholder="https://xxxxx.supabase.co">
+        </div>
+        <div class="form-group">
+          <label>Public anon key</label>
+          <input id="sbKey" type="text" placeholder="Paste anon key">
+          <div class="form-help">Saved only on this device. Change anytime to switch projects.</div>
+        </div>
+        <div class="form-group" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <button class="btn secondary" onclick="testConnection()">🔌 Test Connection</button>
+          <button class="btn success" onclick="pushProfileCloud()">⬆️ Push Profile</button>
+          <button class="btn secondary" onclick="pullProfileCloud()">⬇️ Pull Profile</button>
+          <button class="btn secondary" onclick="pullRecordsCloud()">⬇️ Pull Records</button>
+          <button class="btn success" onclick="pushAllRecordsCloud()">⬆️ Push All Local Records</button>
+        </div>
+        <div id="cloudStatus" class="form-help"></div>
       </div>
     </div>
   </div>
 
-<script>
-  // Initialize Supabase
-  const supabaseUrl = 'https://rkdnosqkgnqcxbbjupwf.supabase.co';
-  const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrZG5vc3FrZ25xY3hiYmp1cHdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzNzEyODgsImV4cCI6MjA3Mzk0NzI4OH0.JgBUV3exbaTUXQzO8pweeRKkmXIsf9xpPWF5ng53S6A';
-  const supabase = supabase.createClient(supabaseUrl, supabaseAnonKey);
+  <!-- Footer -->
+  <div style="position:fixed;left:0;right:0;bottom:0;padding:12px 16px;text-align:center;border-top:3px solid #FFD700;background:rgba(15,23,42,.98);box-shadow:0 -8px 32px rgba(0,0,0,.4);">
+    <div style="color:#86efac;font-size:.76rem;font-weight:700;">All Rights Reserved MCTS 2025 • Designed By: LCPL Ahmed Nabeel</div>
+  </div>
 
-  let currentUser = null;
-
-  function showLogin() {
-    document.getElementById('loginScreen').style.display = 'block';
-    document.getElementById('signupScreen').style.display = 'none';
-    document.getElementById('mainApp').style.display = 'none';
-  }
-
-  function showSignup() {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('signupScreen').style.display = 'block';
-    document.getElementById('mainApp').style.display = 'none';
-  }
-
-  function showMainApp() {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('signupScreen').style.display = 'none';
-    document.getElementById('mainApp').style.display = 'block';
-  }
-
-  async function signup() {
-    const serviceNumber = document.getElementById('signupServiceNumber').value.trim();
-    const password = document.getElementById('signupPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    const name = document.getElementById('signupName').value.trim();
-    const rank = document.getElementById('signupRank').value.trim();
-    const unit = document.getElementById('signupUnit').value.trim();
-
-    if (!serviceNumber || !password || !confirmPassword || !name) {
-      alert("Fill all fields");
-      return;
-    }
-    if (password !== confirmPassword) {
-      alert("Passwords do not match");
-      return;
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    function toast(msg, type='info') {
+      const c = type==='success'?'#10b981':type==='error'?'#ef4444':type==='warn'?'#f59e0b':'#3b82f6';
+      const t = document.createElement('div');
+      t.className = 'toast'; t.style.background = c; t.textContent = msg;
+      document.body.appendChild(t); setTimeout(()=>t.remove(), 2600);
     }
 
-    const email = serviceNumber + "@military.local";
+    // BFT standards
+    const BFT = {
+      '17-21': { push:{min:42,max:82}, sit:{min:52,max:92}, run:{pass:954, max:714} },
+      '22-26': { push:{min:40,max:80}, sit:{min:47,max:87}, run:{pass:996, max:756} },
+      '27-31': { push:{min:38,max:78}, sit:{min:42,max:82}, run:{pass:1038,max:798} },
+      '32-36': { push:{min:33,max:73}, sit:{min:38,max:78}, run:{pass:1080,max:840} },
+      '37-41': { push:{min:32,max:72}, sit:{min:33,max:73}, run:{pass:1122,max:882} },
+      '42-46': { push:{min:26,max:66}, sit:{min:29,max:69}, run:{pass:1146,max:906} },
+      '47-51': { push:{min:22,max:62}, sit:{min:27,max:67}, run:{pass:1176,max:936} },
+      '52+':   { push:{min:16,max:56}, sit:{min:26,max:66}, run:{pass:1200,max:960} },
+    };
+    const cat = a => a<=21?'17-21':a<=26?'22-26':a<=31?'27-31':a<=36?'32-36':a<=41?'37-41':a<=46?'42-46':a<=51?'47-51':'52+';
+    const t2s = (m,s)=> (parseInt(m||'0',10)*60) + (parseInt(s||'0',10));
+    const s2t = ss => `${Math.floor((ss||0)/60)}:${String((ss||0)%60).padStart(2,'0')}`;
 
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) {
-      alert(error.message);
-      return;
+    // Scoring (+6s grace for pass)
+    function score(val, min, max, isRun) {
+      if (isRun) {
+        const pass = min;
+        const mark100 = max;
+        const graceEnd = pass + 6;
+        if (val <= mark100) return 100;
+        if (val <= pass) {
+          const stepsFast = Math.floor((pass - val) / 6);
+          return Math.min(100, 60 + stepsFast);
+        }
+        if (val <= graceEnd) return 60;
+        const over = val - graceEnd;
+        const stepsSlow = Math.ceil(over / 6);
+        return Math.max(0, 60 - stepsSlow);
+      } else {
+        if (val <= 0) return 0;
+        if (val >= max) return 100;
+        if (val >= min) {
+          const span = Math.max(1, max - min);
+          const pts = Math.floor(((val - min) / span) * 40);
+          return Math.min(100, 60 + pts);
+        }
+        const ptsBelow = Math.floor((val / Math.max(1, min)) * 60);
+        return Math.max(0, ptsBelow);
+      }
     }
 
-    const { error: profileError } = await supabase.from('profiles').upsert({ service_number: serviceNumber, name, rank, unit });
-    if (profileError) {
-      alert(profileError.message);
-      return;
+    function evaluate(age,push,sit,runSec){
+      const c = cat(age), st = BFT[c];
+      const ps = score(push, st.push.min, st.push.max);
+      const ss = score(sit,  st.sit.min,  st.sit.max);
+      const rs = score(runSec, st.run.pass, st.run.max, true);
+
+      let bonus = 0;
+      if (push > st.push.max) bonus += (push - st.push.max);
+      if (sit  > st.sit.max)  bonus += (sit  - st.sit.max);
+      if (runSec < st.run.max) bonus += Math.floor((st.run.max - runSec) / 6);
+
+      const baseTotal = ps + ss + rs;
+      const allHundreds = (ps===100) && (ss===100) && (rs===100);
+      const finalTotal = allHundreds ? baseTotal + Math.max(0, bonus) : baseTotal;
+
+      const passP = push >= st.push.min;
+      const passS = sit  >= st.sit.min;
+      const passR = runSec <= (st.run.pass + 6);
+      const merit = push >= st.push.max && sit >= st.sit.max && runSec <= st.run.max;
+
+      return {
+        category: c,
+        scores: { pushUps: ps, sitUps: ss, run: rs },
+        passes: { pushUps: passP, sitUps: passS, run: passR },
+        overallPass: passP && passS && passR,
+        meritEligible: merit,
+        totalScore: finalTotal
+      };
     }
 
-    alert("Account created! Now please sign in.");
-    showLogin();
-  }
-
-  async function login() {
-    const serviceNumber = document.getElementById('loginServiceNumber').value.trim();
-    const password = document.getElementById('loginPassword').value;
-
-    if (!serviceNumber || !password) {
-      alert("Enter all fields");
-      return;
+    // Photo
+    function handlePhotoUpload(){
+      const f = document.getElementById('profilePhoto').files[0];
+      if(!f) return;
+      if(f.size > 5*1024*1024){ alert('Photo must be under 5MB'); return; }
+      const rd = new FileReader();
+      rd.onload = e => {
+        document.getElementById('previewImage').src = e.target.result;
+        document.getElementById('photoPreview').style.display = 'block';
+        document.getElementById('noPhotoPlaceholder').style.display = 'none';
+      };
+      rd.readAsDataURL(f);
+    }
+    function removePhoto(){
+      document.getElementById('previewImage').src = '';
+      document.getElementById('photoPreview').style.display = 'none';
+      document.getElementById('noPhotoPlaceholder').style.display = 'flex';
+      document.getElementById('profilePhoto').value = '';
     }
 
-    const email = serviceNumber + "@military.local";
+    // Storage (IndexedDB with fallback)
+    const DB_NAME = 'BFT_DB_SIMPLE';
+    const DB_VER = 1;
+    let idb = null;
+    function openDB(){
+      return new Promise((resolve) => {
+        try {
+          const req = indexedDB.open(DB_NAME, DB_VER);
+          req.onupgradeneeded = e => {
+            const db = e.target.result;
+            if(!db.objectStoreNames.contains('profiles')){
+              const p = db.createObjectStore('profiles', { keyPath: 'serviceNumber' });
+              p.createIndex('serviceNumber','serviceNumber',{unique:true});
+            }
+            if(!db.objectStoreNames.contains('records')){
+              const r = db.createObjectStore('records', { keyPath: 'id', autoIncrement: true });
+              r.createIndex('serviceNumber','serviceNumber',{unique:false});
+              r.createIndex('year','year',{unique:false});
+            }
+          };
+          req.onsuccess = () => { idb = req.result; resolve(true); };
+          req.onerror = () => { idb = null; resolve(false); };
+        } catch { idb = null; resolve(false); }
+      });
+    }
+    function store(name, mode='readonly'){ return idb ? idb.transaction([name], mode).objectStore(name) : null; }
 
-    const { error, data } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      alert(error.message);
-      return;
+    async function saveProfile(){
+      const profile = {
+        serviceNumber: document.getElementById('serviceNumber').value.trim(),
+        rank: document.getElementById('rank').value.trim(),
+        name: document.getElementById('name').value.trim(),
+        unit: document.getElementById('unit').value.trim(),
+        timestamp: Date.now(),
+        photo: document.getElementById('previewImage').src || ''
+      };
+      if(!profile.serviceNumber){ toast('Please enter your Service Number','error'); return; }
+
+      if(!idb){
+        localStorage.setItem('profile_'+profile.serviceNumber, JSON.stringify(profile));
+        localStorage.setItem('lastSN', profile.serviceNumber);
+        setProfileDisplay(profile);
+      } else {
+        await new Promise((res,rej)=>{ const r=store('profiles','readwrite').put(profile); r.onsuccess=res; r.onerror=()=>rej(r.error); });
+        localStorage.setItem('lastSN', profile.serviceNumber);
+        setProfileDisplay(profile);
+      }
+      toast('Profile saved','success');
+
+      // Auto push profile to cloud for cross-device sync
+      const client = ensureSB();
+      if (client) {
+        try { await client.from('profiles').upsert({ service_number: profile.serviceNumber, rank: profile.rank||'', name: profile.name||'', unit: profile.unit||'', photo: profile.photo||'' }, { onConflict: 'service_number' }); } catch {}
+      }
     }
 
-    currentUser = serviceNumber;
-    await loadUserData();
-    showMainApp();
-  }
-
-  async function logout() {
-    await supabase.auth.signOut();
-    currentUser = null;
-    showLogin();
-  }
-
-  async function loadUserData() {
-    if (!currentUser) return;
-
-    const { data: profile, error: profileError } = await supabase.from('profiles').select().eq('service_number', currentUser).single();
-    if (profileError) {
-      alert(profileError.message);
-      return;
+    async function loadProfile(sn){
+      if(!sn) return null;
+      if(!idb){ const raw = localStorage.getItem('profile_'+sn); return raw? JSON.parse(raw): null; }
+      return new Promise((res,rej)=>{ const r=store('profiles').get(sn); r.onsuccess=()=>res(r.result||null); r.onerror=()=>rej(r.error); });
     }
 
-    document.getElementById('serviceNumber').value = profile.service_number || '';
-    document.getElementById('rank').value = profile.rank || '';
-    document.getElementById('name').value = profile.name || '';
-    document.getElementById('unit').value = profile.unit || '';
-
-    await loadTestRecords();
-  }
-
-  async function saveProfile() {
-    if (!currentUser) return;
-
-    const rank = document.getElementById('rank').value.trim();
-    const name = document.getElementById('name').value.trim();
-    const unit = document.getElementById('unit').value.trim();
-
-    const { error } = await supabase.from('profiles').upsert({ service_number: currentUser, rank, name, unit });
-    if (error) {
-      alert(error.message);
-      return;
+    function setProfileDisplay(p){
+      document.getElementById('profileDetails').innerHTML =
+        `<div class="info-row"><strong>Service Number</strong><span>${p.serviceNumber||'-'}</span></div>
+         <div class="info-row"><strong>Rank</strong><span>${p.rank||'-'}</span></div>
+         <div class="info-row"><strong>Name</strong><span>${p.name||'-'}</span></div>
+         <div class="info-row"><strong>Unit</strong><span>${p.unit||'-'}</span></div>
+         <div class="info-row"><strong>Saved</strong><span style="color:#94a3b8;">${p.timestamp?new Date(p.timestamp).toLocaleString():'-'}</span></div>`;
+      const disp = document.getElementById('profilePhotoDisplay');
+      if(p.photo){ disp.style.display='block'; document.getElementById('displayPhoto').src=p.photo; } else { disp.style.display='none'; }
+      document.getElementById('serviceNumber').value = p.serviceNumber || '';
+      document.getElementById('rank').value = p.rank || '';
+      document.getElementById('name').value = p.name || '';
+      document.getElementById('unit').value = p.unit || '';
+      document.getElementById('profileForm').style.display = 'none';
+      document.getElementById('profileDisplay').style.display = 'block';
+    }
+    function editProfile(){
+      document.getElementById('profileForm').style.display = 'block';
+      document.getElementById('profileDisplay').style.display = 'none';
+    }
+    async function clearProfile(){
+      const sn = document.getElementById('serviceNumber').value.trim() || localStorage.getItem('lastSN');
+      if(!sn){ toast('No profile to clear','warn'); return; }
+      if(idb){
+        await new Promise((res,rej)=>{ const r=store('profiles','readwrite').delete(sn); r.onsuccess=res; r.onerror=()=>rej(r.error); });
+      } else {
+        localStorage.removeItem('profile_'+sn);
+      }
+      ['serviceNumber','rank','name','unit'].forEach(id=>document.getElementById(id).value='');
+      removePhoto();
+      document.getElementById('profileForm').style.display = 'block';
+      document.getElementById('profileDisplay').style.display = 'none';
+      toast('Profile cleared','success');
     }
 
-    alert("Profile saved.");
-  }
+    // Live calculator
+    function updateCalculations(){
+      const age = parseInt(document.getElementById('ageAtTest').value||'0',10);
+      const push = parseInt(document.getElementById('pushUps').value||'0',10);
+      const sit  = parseInt(document.getElementById('sitUps').value||'0',10);
+      const run  = t2s(document.getElementById('runMinutes').value||0, document.getElementById('runSeconds').value||0);
+      const box = document.getElementById('calculatorDisplay');
 
-  async function addTestRecord() {
-    if (!currentUser) return;
+      if(!age || age<17 || age>65){ box.style.display='none'; return; }
+      box.style.display='block';
 
-    const date = document.getElementById('testDate').value;
-    const age = parseInt(document.getElementById('ageAtTest').value);
-    const push_ups = parseInt(document.getElementById('pushUps').value);
-    const sit_ups = parseInt(document.getElementById('sitUps').value);
-    const run_minutes = parseInt(document.getElementById('runMinutes').value);
-    const run_seconds = parseInt(document.getElementById('runSeconds').value);
+      const c = cat(age), st = BFT[c], ev = evaluate(age, push, sit, run);
+      const items = [];
 
-    if (!date || !age || isNaN(push_ups) || isNaN(sit_ups) || isNaN(run_minutes) || isNaN(run_seconds)) {
-      alert("Fill all fields");
-      return;
+      function cell(title, value, sc, ok, merit){
+        let cls = 'no-entry';
+        if(value !== '' && value !== 0){
+          cls = merit ? 'merit' : (ok ? '' : 'fail');
+        }
+        const label = sc ? sc : 'N/A';
+        items.push(`<div class="score-item ${cls}"><div><strong>${title}</strong></div><div>${value||'No Entry'}</div><div>${label}</div></div>`);
+      }
+      cell('Push-ups', push||'', push? ev.scores.pushUps+'/100':'', ev.passes.pushUps, push>=st.push.max);
+      cell('Sit-ups',  sit ||'',  sit ? ev.scores.sitUps +'/100':'',  ev.passes.sitUps,  sit>=st.sit.max);
+
+      const runDisplay = run ? s2t(run) : '';
+      const runOk = ev.passes.run;
+      const runMerit = run && run <= st.run.max;
+      cell('Run', runDisplay, run? ev.scores.run +'/100':'', runOk, runMerit);
+
+      let overall = 'No Entry';
+      if(push && sit && run){ overall = ev.meritEligible?'⭐ MERIT':(ev.overallPass?'PASS':'FAIL'); }
+      items.push(`<div class="score-item ${ev.overallPass ? '' : (push&&sit&&run?'fail':'no-entry')}"><div><strong>Overall</strong></div><div>${overall}</div><div>${(push&&sit&&run)? ev.totalScore+'/300':'N/A'}</div></div>`);
+
+      document.getElementById('currentScores').innerHTML = items.join('');
+      document.getElementById('requirements').innerHTML =
+        `Category: <strong>${c}</strong><br>
+         PASS: Push ${st.push.min}+, Sit ${st.sit.min}+, Run ${s2t(st.run.pass)} (grace +6s)<br>
+         100 Marks: Push ${st.push.max}+, Sit ${st.sit.max}+, Run ${s2t(st.run.max)}`;
     }
 
-    const { error } = await supabase.from('records').insert([{
-      service_number: currentUser,
-      date,
-      age,
-      push_ups,
-      sit_ups,
-      run_minutes,
-      run_seconds
-    }]);
-    if (error) {
-      alert(error.message);
-      return;
+    async function addTestRecord(){
+      const sn = document.getElementById('serviceNumber').value.trim() || localStorage.getItem('lastSN');
+      if(!sn){ toast('Save your profile with Service Number first','error'); return; }
+
+      const date = document.getElementById('testDate').value;
+      const age  = parseInt(document.getElementById('ageAtTest').value||'0',10);
+      const push = parseInt(document.getElementById('pushUps').value||'0',10);
+      const sit  = parseInt(document.getElementById('sitUps').value||'0',10);
+      const run  = t2s(document.getElementById('runMinutes').value||0, document.getElementById('runSeconds').value||0);
+      if(!date || !age || !push || !sit || !run){ toast('Please fill in all fields','error'); return; }
+
+      const ev = evaluate(age, push, sit, run);
+      const rec = { serviceNumber: sn, date, year: new Date(date).getFullYear(), age, pushUps: push, sitUps: sit, runTime: run, runTimeDisplay: s2t(run), evaluation: ev, timestamp: Date.now() };
+
+      if(!idb){
+        const key = 'records_'+sn;
+        const list = JSON.parse(localStorage.getItem(key) || '[]');
+        rec.id = Date.now();
+        list.push(rec);
+        localStorage.setItem(key, JSON.stringify(list));
+      } else {
+        // Add and capture the auto-incremented primary key so we can delete specific records later
+        await new Promise((res,rej)=>{ const tx = idb.transaction(['records'], 'readwrite'); const os = tx.objectStore('records'); const rq = os.add(rec); rq.onsuccess = (e)=>{ rec.id = e.target.result; res(); }; rq.onerror=()=>rej(rq.error); });
+      }
+      ['testDate','ageAtTest','pushUps','sitUps','runMinutes','runSeconds'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('calculatorDisplay').style.display = 'none';
+      renderRecords();
+      updateYearFilter();
+      toast('Test record added','success');
+
+      // Auto push single record to cloud, then refresh from cloud for consistency
+      const client = ensureSB();
+      if (client) {
+        try {
+          await client.from('records').insert([{
+            service_number: sn, date: rec.date, year: rec.year, age: rec.age,
+            pushups: rec.pushUps, situps: rec.sitUps, run_time: rec.runTime,
+            total_score: rec.evaluation.totalScore, category: rec.evaluation.category,
+            pass: rec.evaluation.overallPass, merit: rec.evaluation.meritEligible
+          }]);
+          await pullRecordsCloud(); // merge latest from cloud (handles other devices)
+        } catch {}
+      }
     }
 
-    alert("Test record added.");
-    await loadTestRecords();
-  }
-
-  async function loadTestRecords() {
-    const { data, error } = await supabase.from('records').select().eq('service_number', currentUser).order('date', { ascending: false });
-    const container = document.getElementById('recordsContainer');
-    container.innerHTML = '';
-
-    if (error) {
-      container.innerHTML = `<p>Error loading records: ${error.message}</p>`;
-      return;
+    async function getRecords(sn){
+      if(!idb){ return JSON.parse(localStorage.getItem('records_'+sn) || '[]'); }
+      return new Promise((res,rej)=>{ const i=store('records').index('serviceNumber').getAll(sn); i.onsuccess=()=>res(i.result||[]); i.onerror=()=>rej(i.error); });
     }
 
-    if (!data.length) {
-      container.innerHTML = '<p>No test records found.</p>';
-      return;
+    async function renderRecords(){
+      const container = document.getElementById('recordsContainer');
+      const sn = document.getElementById('serviceNumber').value.trim() || localStorage.getItem('lastSN');
+      if(!sn){ container.innerHTML = '<div class="empty-state">Set your Service Number in Profile.</div>'; return; }
+
+      const all = await getRecords(sn);
+      const year = document.getElementById('yearFilter').value;
+      const rows = year ? all.filter(r=>String(r.year)===year) : all;
+
+      if(!rows.length){ container.innerHTML = '<div class="empty-state">No test records yet.</div>'; return; }
+
+      const byYear={}; rows.forEach(r=>{ (byYear[r.year] ||= []).push(r); });
+
+      let html='';
+      Object.keys(byYear).sort((a,b)=>b-a).forEach(y=>{
+        const list = byYear[y].sort((a,b)=> new Date(b.date)-new Date(a.date));
+        const hasFail = list.some(r=>!r.evaluation.overallPass);
+        const hasMerit= list.some(r=>r.evaluation.meritEligible);
+        const badge = hasMerit?'merit':(hasFail?'fail':'pass');
+        const meritCount = list.filter(r=>r.evaluation.meritEligible).length;
+
+        html += `<div class="year-summary">
+          <div class="status-badge ${badge}" style="position:absolute;top:10px;right:10px;">${badge.toUpperCase()}</div>
+          <h3>${y} Summary</h3>
+          <div class="summary-stats">
+            <div class="stat-item"><strong>Tests</strong><br>${list.length}/2</div>
+            <div class="stat-item"><strong>Status</strong><br>${badge.toUpperCase()}</div>
+            <div class="stat-item"><strong>Merit</strong><br>${meritCount}</div>
+          </div>
+        </div>`;
+
+        list.forEach(r=>{
+          const cls = r.evaluation.meritEligible?'merit':(r.evaluation.overallPass?'pass':'fail');
+          const txt = r.evaluation.meritEligible?'MERIT':(r.evaluation.overallPass?'PASS':'FAIL');
+          html += `<div class="test-record">
+            <div class="status-badge ${cls}">${txt}</div>
+            <div style="color:#4ade80;font-weight:800;margin-bottom:8px;">${new Date(r.date).toLocaleDateString()}</div>
+            <div style="font-size:.82rem;color:#86efac;margin-bottom:6px;">Age: ${r.age} • Category: ${r.evaluation.category}</div>
+            <div class="test-details">
+              <div class="test-detail ${r.evaluation.passes.pushUps?'':'fail-event'}"><strong>Push-ups:</strong> ${r.pushUps}<br>Score: ${r.evaluation.scores.pushUps}/100</div>
+              <div class="test-detail ${r.evaluation.passes.sitUps?'':'fail-event'}"><strong>Sit-ups:</strong> ${r.sitUps}<br>Score: ${r.evaluation.scores.sitUps}/100</div>
+              <div class="test-detail ${r.evaluation.passes.run?'':'fail-event'}"><strong>Run:</strong> ${r.runTimeDisplay}<br>Score: ${r.evaluation.scores.run}/100</div>
+              <div class="test-detail"><strong>Total:</strong> ${r.evaluation.totalScore}/300<br>${r.evaluation.meritEligible?'⭐ MERIT':''}</div>
+            </div>
+          </div>`;
+        });
+      });
+      container.innerHTML = html;
     }
 
-    data.forEach(record => {
-      const div = document.createElement('div');
-      div.textContent = `${record.date}: PU ${record.push_ups}, SU ${record.sit_ups}, Run ${record.run_minutes}:${String(record.run_seconds).padStart(2, '0')}`;
-      container.appendChild(div);
-    });
-  }
+    async function deleteRecord(id){
+      if(!confirm('Delete this test record?')) return;
+      if(idb){ await new Promise((res,rej)=>{ const r=store('records','readwrite').delete(id); r.onsuccess=res; r.onerror=()=>rej(r.error); }); }
+      toast('Record deleted','success');
+      renderRecords();
+      updateYearFilter();
+    }
 
-  async function clearAllRecords() {
-    const { error } = await supabase.from('records').delete().eq('service_number', currentUser);
-    if (error) {
-      alert(error.message);
-      return;
-    }
-    alert("All records cleared.");
-    await loadTestRecords();
-  }
+    async function clearAllRecords(){
+      const sn = (document.getElementById('serviceNumber').value || '').trim() || localStorage.getItem('lastSN');
+      if(!sn){ toast('No Service Number set','error'); return; }
+      if(!confirm('Delete ALL records for this Service Number?')) return;
 
-  async function exportData() {
-    const { data, error } = await supabase.from('records').select().eq('service_number', currentUser);
-    if (error) {
-      alert(error.message);
-      return;
-    }
-    if (!data.length) {
-      alert("No records to export.");
-      return;
-    }
-    let csv = "Date,Age,PushUps,SitUps,RunMinutes,RunSeconds\n";
-    data.forEach(d => {
-      csv += `${d.date},${d.age},${d.push_ups},${d.sit_ups},${d.run_minutes},${d.run_seconds}\n`;
-    });
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = "BFT_Records.csv";
-    a.click();
-    URL.revokeObjectURL(url);
-  }
+      if(!idb){
+        // LocalStorage fallback
+        localStorage.removeItem('records_'+sn);
+      } else {
+        // Correct IndexedDB deletion: iterate the serviceNumber index and delete each record via cursor
+        await new Promise((res, rej) => {
+          try {
+            const tx = idb.transaction(['records'], 'readwrite');
+            const os = tx.objectStore('records');
+            const idx = os.index('serviceNumber');
+            const req = idx.openCursor(IDBKeyRange.only(sn));
+            req.onsuccess = (e) => {
+              const cursor = e.target.result;
+              if (cursor) {
+                cursor.delete(); // delete current record
+                cursor.continue();
+              } else {
+                res();
+              }
+            };
+            req.onerror = () => rej(req.error);
+            tx.oncomplete = () => res();
+            tx.onerror = () => rej(tx.error);
+            tx.onabort = () => rej(tx.error);
+          } catch(err){ rej(err); }
+        });
+      }
 
-  // On load, try to restore session from supabase
-  window.onload = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      currentUser = session.user.email.split('@')[0];
-      await loadUserData();
-      showMainApp();
-    } else {
-      showLogin();
+      // Keep both views in sync
+      try { localStorage.removeItem('records_'+sn); } catch {}
+      await renderRecords();
+      await updateYearFilter();
+      toast('All records cleared','success');
+      // Optional: also clear from cloud (commented to avoid accidental loss)
+      // const client = ensureSB(); if (client) { try { await client.from('records').delete().eq('service_number', sn); } catch {} }
     }
-  };
-</script>
-</body>
+
+    // Supabase auto-connect and auto-sync
+    let sb = null;
+    function ensureSB(){
+      // Read from meta tags or saved values
+      const metaUrl = document.querySelector('meta[name="supabase-url"]')?.content?.trim();
+      const metaKey = document.querySelector('meta[name="supabase-key"]')?.content?.trim();
+      const savedUrl = localStorage.getItem('sbUrl') || '';
+      const savedKey = localStorage.getItem('sbKey') || '';
+      const url = metaUrl || savedUrl;
+      const key = metaKey || savedKey;
+      if(!url || !key){ updateCloudStatus('Supabase not configured yet'); return null; }
+      try {
+        sb = window.supabase.createClient(url, key);
+        try { if(metaUrl) localStorage.setItem('sbUrl', url); if(metaKey) localStorage.setItem('sbKey', key); } catch {}
+        updateCloudStatus('Ready: Supabase client');
+        return sb;
+      } catch {
+        updateCloudStatus('Supabase setup failed');
+        return null;
+      }
+    }
+
+    async function testConnection(){
+      const client = ensureSB(); if(!client) return;
+      updateCloudStatus('Testing connection...');
+      try{
+        const { error } = await client.from('profiles').select('service_number').limit(1);
+        if(error){ updateCloudStatus('Connected, but reads blocked by policies'); toast('Connected (policies may block)','warn'); }
+        else { updateCloudStatus('Connected to Supabase'); toast('Connection OK','success'); }
+      }catch{ updateCloudStatus('Connection failed'); toast('Connection failed','error'); }
+    }
+
+    async function pullProfileCloud(){
+      const client = ensureSB(); if(!client) return;
+      const sn = document.getElementById('serviceNumber').value.trim() || localStorage.getItem('lastSN');
+      if(!sn) return;
+      updateCloudStatus('Pulling profile...');
+      const { data, error } = await client.from('profiles').select('*').eq('service_number', sn).maybeSingle();
+      if(error){ updateCloudStatus('Pull blocked'); return; }
+      if(!data){ updateCloudStatus('No profile on cloud'); return; }
+      const p = { serviceNumber: data.service_number, rank: data.rank||'', name: data.name||'', unit: data.unit||'', timestamp: Date.now(), photo: data.photo||'' };
+      if(idb){ await new Promise((res,rej)=>{ const r=store('profiles','readwrite').put(p); r.onsuccess=res; r.onerror=()=>rej(r.error); }); }
+      else { localStorage.setItem('profile_'+p.serviceNumber, JSON.stringify(p)); }
+      localStorage.setItem('lastSN', p.serviceNumber);
+      setProfileDisplay(p);
+      updateCloudStatus('Profile synced');
+    }
+
+    async function pushProfileCloud(){
+      const client = ensureSB(); if(!client) return;
+      const p = {
+        service_number: document.getElementById('serviceNumber').value.trim(),
+        rank: document.getElementById('rank').value.trim(),
+        name: document.getElementById('name').value.trim(),
+        unit: document.getElementById('unit').value.trim(),
+        photo: document.getElementById('previewImage').src || ''
+      };
+      if(!p.service_number) return;
+      updateCloudStatus('Pushing profile...');
+      const { error } = await client.from('profiles').upsert(p, { onConflict: 'service_number' });
+      updateCloudStatus(error ? 'Push blocked' : 'Profile pushed');
+    }
+
+    async function pullRecordsCloud(){
+      const client = ensureSB(); if(!client) return;
+      const sn = document.getElementById('serviceNumber').value.trim() || localStorage.getItem('lastSN');
+      if(!sn) return;
+      updateCloudStatus('Pulling records...');
+      const { data, error } = await client.from('records').select('*').eq('service_number', sn).order('date', {ascending:false});
+      if(error){ updateCloudStatus('Pull blocked'); return; }
+      if(idb){
+        const existing = await getRecords(sn);
+        const keys = new Set(existing.map(r=>`${r.date}|${r.pushUps}|${r.sitUps}|${r.runTime}`));
+        for(const r of (data||[])){
+          const k = `${r.date}|${r.pushups||0}|${r.situps||0}|${r.run_time||0}`;
+          if(keys.has(k)) continue;
+          const age = r.age||0;
+          const ev  = evaluate(age, r.pushups||0, r.situps||0, r.run_time||0);
+          await new Promise((res,rej)=>{ const tx=idb.transaction(['records'],'readwrite'); const os=tx.objectStore('records'); const rq=os.add({ serviceNumber: sn, date: r.date, year: r.year, age, pushUps: r.pushups||0, sitUps: r.situps||0, runTime: r.run_time||0, runTimeDisplay: s2t(r.run_time||0), evaluation: ev, timestamp: Date.now() }); rq.onsuccess=(e)=>{ /* capture id if needed: e.target.result */ res(); }; rq.onerror=()=>rej(rq.error); });
+        }
+      } else {
+        // LocalStorage fallback (simple replace)
+        localStorage.setItem('records_'+sn, JSON.stringify((data||[]).map(r => ({
+          id: Date.now()+Math.random(),
+          serviceNumber: sn,
+          date: r.date, year: r.year, age: r.age||0,
+          pushUps: r.pushups||0, sitUps: r.situps||0, runTime: r.run_time||0,
+          runTimeDisplay: s2t(r.run_time||0),
+          evaluation: evaluate(r.age||0, r.pushups||0, r.situps||0, r.run_time||0),
+          timestamp: Date.now()
+        }))));
+      }
+      await renderRecords(); await updateYearFilter();
+      updateCloudStatus('Records synced');
+    }
+
+    async function pushAllRecordsCloud(){
+      const client = ensureSB(); if(!client) return;
+      const sn = document.getElementById('serviceNumber').value.trim() || localStorage.getItem('lastSN'); if(!sn) return;
+      const rows = await getRecords(sn);
+      if(!rows.length) return;
+      updateCloudStatus('Pushing records...');
+      const batch = rows.map(r=>({ service_number: sn, date: r.date, year: r.year, age: r.age, pushups: r.pushUps, situps: r.sitUps, run_time: r.runTime, total_score: r.evaluation.totalScore, category: r.evaluation.category, pass: r.evaluation.overallPass, merit: r.evaluation.meritEligible }));
+      const { error } = await client.from('records').insert(batch);
+      updateCloudStatus(error ? 'Push blocked' : 'Records pushed');
+    }
+
+    // Periodic auto-pull to keep devices in sync (no realtime sockets due to sandbox)
+    let syncTimer = null;
+    function startAutoPullLoop(){
+      if (syncTimer) clearInterval(syncTimer);
+      syncTimer = setInterval(async ()=>{
+        const sn = document.getElementById('serviceNumber').value.trim() || localStorage.getItem('lastSN');
+        if (!sn) return;
+        await pullProfileCloud();
+        await pullRecordsCloud();
+      }, 15000); // every 15s
+    }
+
+    // Utility
+    function updateCloudStatus(text){
+      const el = document.getElementById('cloudStatus');
+      if (el) el.textContent = text || '';
+    }
+    async function updateYearFilter(){
+      const sel = document.getElementById('yearFilter');
+      const cur = sel.value;
+      const sn = document.getElementById('serviceNumber').value.trim() || localStorage.getItem('lastSN');
+      sel.innerHTML = '<option value="">All Years</option>';
+      if(!sn){ sel.value=''; return; }
+      const rows = await getRecords(sn);
+      const years = [...new Set(rows.map(r=>r.year))].sort((a,b)=>b-a);
+      years.forEach(y=> sel.innerHTML += `<option value="${y}">${y}</option>`);
+      sel.value = cur;
+    }
+    function filterRecords(){ renderRecords(); }
+
+    // Auto-drafts (keep inputs on this device)
+    function setupDrafts(){
+      const pf = ['serviceNumber','rank','name','unit'];
+      pf.forEach(id=>{
+        const el = document.getElementById(id);
+        if(!el) return;
+        el.addEventListener('input', ()=>{
+          const draft = {
+            serviceNumber: document.getElementById('serviceNumber').value.trim(),
+            rank: document.getElementById('rank').value.trim(),
+            name: document.getElementById('name').value.trim(),
+            unit: document.getElementById('unit').value.trim(),
+          };
+          try { localStorage.setItem('draft_profile', JSON.stringify(draft)); } catch {}
+          if (draft.serviceNumber) try { localStorage.setItem('lastSN', draft.serviceNumber); } catch {}
+        });
+      });
+      const tf = ['testDate','ageAtTest','pushUps','sitUps','runMinutes','runSeconds'];
+      tf.forEach(id=>{
+        const el = document.getElementById(id);
+        if(!el) return;
+        el.addEventListener('input', ()=>{
+          const draft = {
+            date: document.getElementById('testDate').value,
+            ageAtTest: document.getElementById('ageAtTest').value,
+            pushUps: document.getElementById('pushUps').value,
+            sitUps: document.getElementById('sitUps').value,
+            runMinutes: document.getElementById('runMinutes').value,
+            runSeconds: document.getElementById('runSeconds').value,
+          };
+          try { localStorage.setItem('draft_test', JSON.stringify(draft)); } catch {}
+          updateCalculations();
+        });
+      });
+    }
+    function restoreDrafts(){
+      try {
+        const draftTest = JSON.parse(localStorage.getItem('draft_test') || '{}');
+        if (draftTest.date) document.getElementById('testDate').value = draftTest.date; else { const d = document.getElementById('testDate'); if(d) d.value = new Date().toISOString().slice(0,10); }
+        if (draftTest.ageAtTest) document.getElementById('ageAtTest').value = draftTest.ageAtTest;
+        if (draftTest.pushUps) document.getElementById('pushUps').value = draftTest.pushUps;
+        if (draftTest.sitUps) document.getElementById('sitUps').value = draftTest.sitUps;
+        if (typeof draftTest.runMinutes !== 'undefined') document.getElementById('runMinutes').value = draftTest.runMinutes;
+        if (typeof draftTest.runSeconds !== 'undefined') document.getElementById('runSeconds').value = draftTest.runSeconds;
+      } catch {}
+      try {
+        const draftProfile = JSON.parse(localStorage.getItem('draft_profile') || '{}');
+        if (draftProfile.serviceNumber) document.getElementById('serviceNumber').value = draftProfile.serviceNumber;
+        if (draftProfile.rank) document.getElementById('rank').value = draftProfile.rank;
+        if (draftProfile.name) document.getElementById('name').value = draftProfile.name;
+        if (draftProfile.unit) document.getElementById('unit').value = draftProfile.unit;
+      } catch {}
+    }
+
+    // Init
+    (async function init(){
+      await openDB();
+      restoreDrafts();
+      const lastSN = localStorage.getItem('lastSN') || '';
+      if(lastSN){
+        const p = await loadProfile(lastSN);
+        if(p) setProfileDisplay(p);
+      }
+      setupDrafts();
+
+      // Cloud connect + initial sync, then start auto-pull loop
+      ensureSB();
+      await pullProfileCloud();
+      await pullRecordsCloud();
+      startAutoPullLoop();
+
+      await updateYearFilter();
+      await renderRecords();
+    })();
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98231498e32b4716',t:'MTc1ODM4OTczOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
